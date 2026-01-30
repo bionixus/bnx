@@ -1,0 +1,144 @@
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, ChevronDown } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { languages } from '@/lib/i18n';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { pathname } = useLocation();
+  const { language, setLanguage, t } = useLanguage();
+
+  const handleLogoClick = () => {
+    if (pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const currentLang = languages.find(l => l.code === language);
+
+  // Use /#section so links work from any page (e.g. /blog) and scroll to the right section on home
+  const navItems = [
+    { href: '/#services', label: t.nav.services },
+    { href: '/#insights', label: t.nav.insights },
+    { href: '/#about', label: t.nav.about },
+    { href: '/#contact', label: t.nav.contact },
+  ];
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+      <div className="container-wide section-padding py-4">
+        <div className="flex items-center justify-between">
+          {/* Logo – links to home, scrolls to hero when already on home */}
+          <Link to="/" className="flex items-center gap-3" onClick={handleLogoClick}>
+            <img
+              src="/bionixus-logo.png"
+              alt="BioNixus"
+              className="h-9 w-auto object-contain"
+            />
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-8">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                to={item.href}
+                className="nav-link text-foreground/80 hover:text-foreground"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Language Selector & CTA */}
+          <div className="hidden md:flex items-center gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm">
+                <span>{currentLang?.flag}</span>
+                <span className="text-foreground/80">{currentLang?.code.toUpperCase()}</span>
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[150px]">
+                {languages.map((lang) => (
+                  <DropdownMenuItem
+                    key={lang.code}
+                    onClick={() => setLanguage(lang.code)}
+                    className={`cursor-pointer ${language === lang.code ? 'bg-muted' : ''}`}
+                  >
+                    <span className="mr-2">{lang.flag}</span>
+                    {lang.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Link
+              to="/#contact"
+              className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:opacity-90 transition-opacity"
+            >
+              {t.nav.contact}
+            </Link>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle menu"
+          >
+            {isOpen ? (
+              <X className="w-6 h-6 text-foreground" />
+            ) : (
+              <Menu className="w-6 h-6 text-foreground" />
+            )}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isOpen && (
+          <div className="md:hidden mt-4 pb-4 border-t border-border pt-4 animate-fade-in">
+            <div className="flex flex-col gap-4">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className="text-foreground/80 hover:text-foreground font-medium"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="flex items-center gap-2 pt-4 border-t border-border">
+                {languages.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => {
+                      setLanguage(lang.code);
+                      setIsOpen(false);
+                    }}
+                    className={`px-3 py-2 rounded-lg text-sm ${
+                      language === lang.code
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-foreground'
+                    }`}
+                  >
+                    {lang.flag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;

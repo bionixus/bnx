@@ -1,0 +1,44 @@
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import Navbar from '@/components/Navbar';
+import HeroSection from '@/components/HeroSection';
+import ServicesSection from '@/components/ServicesSection';
+import StatsSection from '@/components/StatsSection';
+import BlogSection from '@/components/BlogSection';
+import TestimonialsSection from '@/components/TestimonialsSection';
+import ContactSection from '@/components/ContactSection';
+import Footer from '@/components/Footer';
+
+const Index = () => {
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      const id = hash.replace('#', '');
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      // No hash: open at hero section (top of page)
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [hash]);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main>
+        <HeroSection />
+        <ServicesSection />
+        <StatsSection />
+        <BlogSection />
+        <TestimonialsSection />
+        <ContactSection />
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default Index;
